@@ -1,0 +1,4 @@
+# .gitignore
+tarsier
+data/annotations
+data/videos

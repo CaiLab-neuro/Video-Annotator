@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "name": "child_attention_behavior_presets",
+    "version": "1.0.0",
+    "created_utc": "2025-09-05T18:41:19.058870Z",
+    "notes": "Visual behavior analysis focusing on gestures, movement, and object interaction. No audio assumptions."
+  },
+  "global_instructions": {
+  "system_prompt": "You are analyzing visual behavior from video. Focus only on visible cues with no audio assumptions. Answer with exactly one keyword from the options. No explanations.",
+  "defaults": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_new_tokens": 4
+  }
+ },
+  "presets": [
+    {
+      "task": "child_toy_interaction",
+      "title": "Child Toy Interaction Detail",
+      "question": "If the child has a toy in their hand, how are they interacting with it? If no toy, choose 'not interacting'. Choose one: actively playing, holding still, looking, not interacting.",
+      "choices": [
+        "actively playing",
+        "holding still",
+        "looking",
+        "not interacting"
+      ],
+      "aliases": {
+        "unclear": "not interacting",
+        "not playing": "not interacting",
+        "not touching": "not interacting",
+        "moving": "actively playing",
+        "still": "holding still",
+        "examining": "looking",
+        "tossing": "actively playing",
+        "banging": "actively playing",
+        "throwing": "actively playing",
+        "none": "not interacting"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "attn",
+      "title": "Attention Target",
+      "question": "Who is the child primarily attending to in this short clip? Choose one: adult, toy, neither.",
+      "choices": [
+        "adult",
+        "toy",
+        "neither"
+      ],
+      "aliases": {
+        "mom": "adult",
+        "dad": "adult",
+        "caregiver": "adult",
+        "parent": "adult",
+        "woman": "adult",
+        "man": "adult"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy",
+      "title": "Toy Identity",
+      "question": "Which object is the child primarily interacting with in this short clip? Choose one: giraffe, elephant, red toy, green toy, none.",
+      "choices": [
+        "giraffe",
+        "elephant",
+        "red toy",
+        "green toy",
+        "none"
+      ],
+      "aliases": {
+        "giraffe-toy": "giraffe",
+        "grey toy": "elephant",
+        "yellow toy": "red toy",
+        "no": "none"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "parent_speaking",
+      "title": "Parent Speaking Now",
+      "question": "Is the parent actively speaking and interacting with the child throught the duration of the entire video? Choose one: yes, no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "resp",
+      "title": "Responsiveness While Parent Speaks",
+      "question": "While the parent is speaking in this short clip, is the child responding to the parent or distracted? Choose one: responding, distracted.",
+      "choices": [
+        "responding",
+        "distracted"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "pose",
+      "title": "Child Pose",
+      "question": "What is the child's posture in this short clip? Choose one: sitting, standing, crawling, walking.",
+      "choices": [
+        "sitting",
+        "standing",
+        "crawling",
+        "walking"
+      ],
+      "aliases": {
+        "kneeling": "sitting",
+        "moving": "walking"
+      },
+      "return_format": "label_only"
+    }
+  ],
+  "few_shot": [
+    {
+      "instruction": "Who is the child primarily attending to in this short clip? Choose one: parent, toy, neither.",
+      "answer": "parent"
+    },
+    {
+      "instruction": "Which object is the child primarily interacting with in this short clip? Choose one: giraffe, turtle, other, none.",
+      "answer": "giraffe"
+    },
+    {
+      "instruction": "While the parent is speaking in this short clip, is the child responding to the parent or distracted? Choose one: responding, distracted.",
+      "answer": "distracted"
+    },
+    {
+      "instruction": "What is the child's posture in this short clip? Choose one: sitting, standing, crawling, moving.",
+      "answer": "sitting"
+    },
+    {
+      "instruction": "Is the parent actively speaking to the child in this short clip? Choose one: yes, no.",
+      "answer": "yes"
+    }
+  ]
+}

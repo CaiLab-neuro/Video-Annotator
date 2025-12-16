@@ -1,0 +1,279 @@
+{
+  "meta": {
+    "name": "child_parent_long_visual_presets",
+    "version": "1.0.0",
+    "created_utc": "2025-10-20T00:00:00Z",
+    "notes": "Long-duration visual behavior summaries. No audio, no gaze. Output exactly one label per prompt."
+  },
+  "global_instructions": {
+    "system_prompt": "You are analyzing a continuous video segment. Use only visible cues (posture, hands/arms, object contact, proximity/orientation). Ignore audio and eye gaze. Consider the ENTIRE segment and choose the SINGLE best summary label from {choices}. Output the label ONLY — no punctuation or extra words. If uncertain, choose the closest allowed label such as 'none'.",
+    "defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_new_tokens": 12
+    } 
+  },
+  "presets": [
+    {
+      "task": "interaction_flow",
+      "title": "Overall Interaction Flow in Segment",
+      "question": "What is the primary visual interaction pattern between the two people? Choose one: adult initiates, child initiates, mutual engagement, disengaged.",
+      "choices": [
+        "adult initiates",
+        "child initiates",
+        "mutual engagement",
+        "disengaged",
+        "mixed"
+      ],
+      "aliases": {
+        "adult leads": "adult initiates",
+        "child leads": "child initiates",
+        "together": "mutual engagement",
+        "no interaction": "disengaged",
+        "varied": "mutal engagement",
+        "unclear": "disengaged",
+        "unknown": "mutal engagement"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "current_toy",
+      "title": "Current Toy",
+      "question": "What is the object the child and adult are focused on? Choose one: giraffe, elephant, yellow toy, green toy, none",
+      "choices": [
+        "mostly",
+        "occasionally",
+        "rarely",
+        "never",
+        "cannot tell"
+      ],
+      "aliases": {
+        "red toy": "yellow toy",
+        "unknown": "none",
+        "grey toy": "elephant",
+        "grey object": "elephant"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_toy_contact",
+      "title": "Frequency of Child Holding Toy",
+      "question": "How often is the child holding a toy? Choose one: mostly, occasionally, rarely, never.",
+      "choices": [
+        "mostly",
+        "occasionally",
+        "rarely",
+        "never"
+      ],
+      "aliases": {
+        "often": "mostly",
+        "frequent": "mostly",
+        "sometimes": "occasionally",
+        "seldom": "rarely",
+        "no toy": "never"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "parent_object_contact",
+      "title": "Frequency of Parent Holding Object",
+      "question": "How often is the parent visibly holding an object? Choose one: mostly, occasionally, rarely, never, cannot tell.",
+      "choices": [
+        "mostly",
+        "occasionally",
+        "rarely",
+        "never"
+      ],
+      "aliases": {
+        "often": "mostly",
+        "frequent": "mostly",
+        "sometimes": "occasionally",
+        "seldom": "rarely",
+        "no toy": "never"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_usage_overall",
+      "title": "Dominant Toy Across Segment",
+      "question": "Which toy appears most commonly in the child’s hands? Choose one: giraffe, elephant, yellow toy, green toy, multiple, none, cannot tell.",
+      "choices": [
+        "giraffe",
+        "elephant",
+        "yellow toy",
+        "green toy",
+        "multiple",
+        "none",
+        "cannot tell"
+      ],
+      "aliases": {
+        "red toy": "yellow toy",
+        "no object": "none",
+        "varied toys": "multiple",
+        "unknown": "cannot tell",
+        "yellow flower toy": "red toy"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "temporal_engagement_level",
+      "title": "Temporal Engagement Level",
+      "question": "What is the level of engagement between the child and parent in this segment? Choose one: sustained high, intermittent, brief, mostly disengaged, mixed.",
+      "choices": [
+        "sustained high",
+        "intermittent",
+        "brief",
+        "mostly disengaged",
+        "mixed"
+      ],
+      "aliases": {
+        "consistent": "sustained high",
+        "on and off": "intermittent",
+        "short": "brief",
+        "varied": "mixed",
+        "unknown": "mixed"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_mobility_level_overall",
+      "title": "Child Mobility Level (Segment)",
+      "question": "How active is the child's body movement? Choose one: high, moderate, low, minimal, mixed.",
+      "choices": [
+        "high",
+        "moderate",
+        "low",
+        "minimal",
+        "mixed"
+      ],
+      "aliases": {
+        "very active": "high",
+        "some movement": "moderate",
+        "mostly still": "low",
+        "barely moving": "minimal",
+        "varied": "mixed"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "occlusion_quality_overall",
+      "title": "Visibility/Occlusion Quality",
+      "question": "How clear is the visual view of the child across the segment? Choose one: clear most of time, occasional occlusion, frequent occlusion, mostly occluded, cannot tell.",
+      "choices": [
+        "clear most of time",
+        "occasional occlusion",
+        "frequent occlusion",
+        "mostly occluded",
+        "cannot tell"
+      ],
+      "aliases": {
+        "clear": "clear most of time",
+        "sometimes blocked": "occasional occlusion",
+        "often blocked": "frequent occlusion",
+        "blocked": "mostly occluded",
+        "unknown": "cannot tell"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_exchange_overall",
+      "title": "Toy Exchange Levels",
+      "question": "How often do you see toy hand-over between adult and child? Choose one: frequent, occasional, none, cannot tell.",
+      "choices": [
+        "frequent",
+        "occasional",
+        "none",
+        "cannot tell"
+      ],
+      "aliases": {
+        "many": "frequent",
+        "some": "occasional",
+        "no handover": "none",
+        "unknown": "cannot tell"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_table_surface_usage",
+      "title": "Child Table Usage",
+      "question": "How often does the child reach to or place objects on the table/surface? Choose one: frequent, occasional, rare, none, cannot tell.",
+      "choices": [
+        "frequent",
+        "occasional",
+        "rare",
+        "none",
+        "cannot tell"
+      ],
+      "aliases": {
+        "often": "frequent",
+        "sometimes": "occasional",
+        "seldom": "rare",
+        "no use": "none",
+        "unknown": "cannot tell"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "carpet_surface_usage_overall",
+      "title": "Child Carpet Usage",
+      "question": "How often does the child place objects on the carpet? Choose one: frequent, occasional, rare, none, cannot tell.",
+      "choices": [
+        "frequent",
+        "occasional",
+        "rare",
+        "none",
+        "cannot tell"
+      ],
+      "aliases": {
+        "often": "frequent",
+        "sometimes": "occasional",
+        "seldom": "rare",
+        "no use": "none",
+        "unknown": "cannot tell"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_switching_overall",
+      "title": "Toy Switching Frequency",
+      "question": "How much switching between different toys is visible across the segment? Choose one: frequent switching, some switching, single toy, none, cannot tell.",
+      "choices": [
+        "frequent switching",
+        "some switching",
+        "single toy",
+        "none",
+        "cannot tell"
+      ],
+      "aliases": {
+        "many switches": "frequent switching",
+        "few switches": "some switching",
+        "one toy": "mostly single toy",
+        "no switch": "none",
+        "unknown": "cannot tell"
+      },
+      "return_format": "label_only"
+    }
+  ],
+  "few_shot": [
+    {
+      "instruction": "Considering the entire segment, what is the visual interaction pattern between the two people? Choose one: adult initiates, child initiates, mutual engagement, disengaged, mixed.",
+      "answer": "mutual engagement"
+    },
+    {
+      "instruction": "Over the entire segment, which child hand action predominates? Choose one: pointing, holding toy still, manipulating toy, gesturing, touching adult, resting, none, mixed.",
+      "answer": "manipulating toy"
+    },
+    {
+      "instruction": "Which toy appears most commonly in the child’s hands across the segment? Choose one: giraffe, elephant, yellow toy, green toy, multiple, none, cannot tell.",
+      "answer": "giraffe"
+    },
+    {
+      "instruction": "Across the segment, how active is the child's body movement? Choose one: high, moderate, low, minimal, mixed.",
+      "answer": "moderate"
+    },
+    {
+      "instruction": "How clear is the visual view of the child across the segment? Choose one: clear most of time, occasional occlusion, frequent occlusion, mostly occluded, cannot tell.",
+      "answer": "occasional occlusion"
+    }
+  ]
+}
