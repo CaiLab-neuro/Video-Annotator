@@ -22,5 +22,5 @@ This section provides guidance on how to run, evaluate and deploy this model.
 Following all are running under the environment of python 3.9. First, clone this git repo, then continue to the following instructions to add the Tarsier model.
 
 ### Model Prepare
-Download the model checkpoints from Hugging Face: [Tarsier2-Recap-7b](https://huggingface.co/omni-research/Tarsier2-Recap-7b).
+Download the model checkpoints from Hugging Face: [Tarsier2-Recap-7b](https://huggingface.co/omni-research/Tarsier2-Recap-7b). Change model_path to "omni-research/Tarsier2-7b-0115".
 Complete instructions to integrate Tarsier2 model in folder annotations_module: [Tarsier2](https://github.com/bytedance/tarsier).
