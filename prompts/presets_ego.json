@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "name": "child_parent_hand_interaction_ego",
+    "version": "1.1.0",
+    "created_utc": "2025-12-17T13:42:19.058870Z",
+    "notes": "Visual behavior analysis focusing on hand and object interaction. No audio assumptions."
+  },
+  "global_instructions": {
+    "system_prompt": "Analyze visual behavior of hands from this egocentric, first-person point of view video. Use only visible cues and ignore audio. Return EXACTLY one label from {choices}. Output the label ONLY. No punctuation, no extra words, no sentences.",
+    "defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_new_tokens": 8
+    }
+  },
+  "presets": [
+    {
+      "task": "hands_visible",
+      "title": "Hands Visible",
+      "question": "Is the person's hands visible? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_visible",
+      "title": "Toy Visible",
+      "question": "Is a toy visible? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_in_environment",
+      "title": "Toy Presence",
+      "question": "Is there a toy being held? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "hand_action",
+      "title": "Current Hand Action",
+      "question": "What is the current visible hand action? Choose one: pointing, grabbing toy, handing away the toy, holding toy still, manipulating toy, gesturing, touching a person, on the ground, on some furniture, opening a box or bag, waving, holding paper, resting, none.",
+      "choices": [
+        "pointing",
+        "grabbing toy",
+        "handing away the toy",
+        "holding toy still",
+        "manipulating toy",
+        "gesturing",
+        "touching a person",
+        "on the ground",
+        "on some furniture",
+        "opening a box or bag",
+        "waving",
+        "holding paper",
+        "resting",
+        "none"
+      ],
+      "aliases": {
+        "grasping": "holding toy still",
+        "playing with toy": "manipulating toy",
+        "moving toy": "manipulating toy",
+        "waving": "gesturing",
+        "showing": "gesturing",
+        "reaching": "gesturing"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "current_toy",
+      "title": "Current Toy Interaction",
+      "question": "Which toy is currently visible? Choose one: none, giraffe, elephant, red toy, green toy.",
+      "choices": [
+        "giraffe",
+        "elephant",
+        "yellow toy",
+        "green toy",
+        "none"
+      ],
+      "aliases": {
+        "red toy": "yellow toy",
+        "not interacting": "none",
+        "grey toy": "none",
+        "unkown": "none",
+        "no toy present": "none",
+        "green toy with a yellow flower-like shape": "green toy"
+      },
+      "return_format": "label_only"
+    }
+  ],
+  "few_shot": [
+    {
+      "instruction": "Is the person's hands visible? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is a toy visible? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is there a toy being held? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "What is the current visible hand action? Choose one: pointing, grabbing toy, handing away the toy, holding toy still, manipulating toy, gesturing, touching a person, on the ground, on some furniture, opening a box or bag, waving, holding paper, resting, none.",
+      "answer": "manipulating toy"
+    },
+    {
+      "instruction": "Which toy is currently visible? Choose one: none, giraffe, elephant, red toy, green toy.",
+      "answer": "giraffe"
+    }
+  ]
+}

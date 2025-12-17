@@ -1,4 +1,4 @@
 # .gitignore
-tarsier
 data/annotations
 data/videos
+tarsier
