@@ -132,8 +132,8 @@ def main():
             }
             rows.append(row_data)
 
-            # summary output for debugging
-            print(f"-> Results: child_hand={row_data['child_hand_action']}, toy={row_data['current_toy']}, "
+            # Results summary - Debugging
+            print(f"Results: child_hand={row_data['child_hand_action']}, toy={row_data['current_toy']}, "
                   f"prox={row_data['child_proximity_behavior']}, orient={row_data['child_body_orientation_action']}, "
                   f"interaction={row_data['interaction_flow']}")
 

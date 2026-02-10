@@ -15,6 +15,32 @@
   },
   "presets": [
     {
+      "task": "focal_point",
+      "title": "Focal Point",
+      "question": "What is the focal point of this clip? Choose one: hands, table, elephant toy, giraffe toy, yellow toy, green toy, curtains, a person, the ground, paper, box, bag, wall",
+      "choices": [
+        "hands",
+        "table",
+        "elephant toy",
+        "giraffe toy",
+        "yellow toy",
+        "green toy",
+        "curtains",
+        "a person",
+        "the ground",
+        "paper",
+        "box",
+        "bag",
+        "wall"
+      ],
+      "aliases": {
+        "surface": "table",
+        "red toy": "yellow toy",
+        "carpet": "the ground"
+      },
+      "return_format": "label_only"
+    },
+    {
       "task": "hands_visible",
       "title": "Hands Visible",
       "question": "Is the person's hands visible? Choose one: yes or no.",

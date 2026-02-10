@@ -124,7 +124,7 @@ CURRENT_TOY_ALIASES = {
     "red toy": "yellow toy",
     "not interacting": "none",
     "grey toy": "none",
-    "unkown": "none",
+    "unknown": "none",
     "no toy present": "none",
     "green toy with a yellow flower-like shape": "green toy",
 }

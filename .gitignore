@@ -1,4 +1,7 @@
 # .gitignore
 data/annotations
 data/videos
+
 tarsier
+
+visualizer_old.py

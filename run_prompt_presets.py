@@ -49,7 +49,7 @@ def normalize_to_choices(raw_text, choices, aliases=None):
         if any(w in s for w in ["no", "nope", "not", "false", "isn"]):
             return "no"
 
-    # Fuzzy substring match as last resort
+    # Substring match as last resort
     for c in choices:
         if c in s:
             return c
