@@ -1,11 +1,19 @@
-# Runs a single multimodal conversation per video clip to obtain structured behavioral annotations 
+# Runs a single multimodal conversation per video clip to obtain structured behavioral annotations
 # from a video–language model using predefined prompt templates.
 
-import argparse, json, os
+import argparse, json, os, sys
+from pathlib import Path
 from copy import deepcopy
+
+# Add tarsier directory to sys.path for imports
+_script_dir = Path(__file__).parent.resolve()
+_tarsier_dir = _script_dir / 'tarsier'
+if _tarsier_dir.exists() and str(_tarsier_dir) not in sys.path:
+    sys.path.insert(0, str(_tarsier_dir))
+
 import torch
-from tarsier.tasks.utils import load_model_and_processor
-from tarsier.tools.conversation import Chat, conv_templates
+from tasks.utils import load_model_and_processor
+from tools.conversation import Chat, conv_templates
 
 def normalize_to_choices(raw_text, choices, aliases=None):
     """

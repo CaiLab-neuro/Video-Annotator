@@ -1,3 +1,7 @@
+#!/bin/bash
+# NOTE: Activate your conda environment before running this script:
+#   conda activate tarsier
+
 # Visualize results from CSV files (model and human annotations)
 
 python -m visualizer \

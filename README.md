@@ -19,16 +19,33 @@ Tarsier takes a simple sturcture that use a MLP projection layer to connect visu
 This section provides guidance on how to run, evaluate and deploy this model.
 
 ## Setup
-Following all are running under the virtual environment of python 3.9. First, clone this git repo, then continue to the following instructions to add the Tarsier model. Install main dependencies
 
-### Model Prepare
-Download the model checkpoints from Hugging Face: [Tarsier2-Recap-7b](https://huggingface.co/omni-research/Tarsier2-Recap-7b). Change model_path to "omni-research/Tarsier2-7b-0115".
-Complete instructions to integrate Tarsier2 model in folder annotations_module: [Tarsier2](https://github.com/bytedance/tarsier).
+**Requirements:** Python 3.9, git, ffmpeg, ~10 GB disk space
+
+### Automated Installation
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r tarsier/requirements.txt
+python install.py
+conda activate tarsier
 ```
+
+Options: `--env-name <name>`, `--force`, `--verify-only`
+
+### Manual Installation
+
+```bash
+# Create environment
+conda create -n tarsier python=3.9 -y && conda activate tarsier
+
+# Install Tarsier
+git clone --branch tarsier2 https://github.com/bytedance/tarsier.git tarsier/
+cd tarsier && bash setup.sh && cd ..
+
+# Install project dependencies
+pip install pympi-ling pandas matplotlib scikit-learn
+```
+
+**Note:** Model (`omni-research/Tarsier2-7b-0115`) auto-downloads on first use to `~/.cache/huggingface/hub/`
 
 ### Get Started
 
@@ -36,7 +53,7 @@ pip install -r tarsier/requirements.txt
 
 This pipeline automatically analyzes behavioral videos by extracting short clips and classifying behavioral features across multiple dimensions (e.g., child hand action, toy engagement, spatial proximity, parental gestures).
 
-**Quick Start:**
+**Linux/Mac:**
 
 1. Configure the `scripts/run_preset.sh` script with your parameters:
    ```bash
@@ -44,7 +61,6 @@ This pipeline automatically analyzes behavioral videos by extracting short clips
    ```
 
 2. Key variables to set:
-   - `PYTHON_BIN`: Path to your Python executable
    - `VIDEO`: Path to your input video file
    - `OUT_CSV`: Path where the output annotations CSV will be saved
    - `PRESETS`: Path to the prompts configuration (e.g., `prompts/presets_short.json`)
@@ -53,8 +69,43 @@ This pipeline automatically analyzes behavioral videos by extracting short clips
 
 3. Run the annotation script:
    ```bash
+   conda activate tarsier
    bash scripts/run_preset.sh
    ```
+
+**Windows (Command Prompt or PowerShell):**
+
+```cmd
+conda activate tarsier
+python -m annotate_video ^
+  --video data/videos/YOUR_VIDEO.mp4 ^
+  --model omni-research/Tarsier2-7b-0115 ^
+  --config tarsier/configs/tarser2_default_config.yaml ^
+  --prompts prompts/presets_short.json ^
+  --out_csv data/results/OUTPUT.csv ^
+  --clip_sec 3.0 ^
+  --stride_sec 3.0 ^
+  --start_sec 60 ^
+  --limit_sec 180
+```
+
+**All platforms (direct Python):**
+
+```bash
+conda activate tarsier
+python -m annotate_video \
+  --video data/videos/YOUR_VIDEO.mp4 \
+  --model omni-research/Tarsier2-7b-0115 \
+  --config tarsier/configs/tarser2_default_config.yaml \
+  --prompts prompts/presets_short.json \
+  --out_csv data/results/OUTPUT.csv \
+  --clip_sec 3.0 \
+  --stride_sec 3.0 \
+  --start_sec 60 \
+  --limit_sec 180
+```
+
+Replace `YOUR_VIDEO.mp4` and `OUTPUT.csv` with your actual file paths.
 
 **Output:** A CSV file with one row per video segment, containing the following behavioral annotations:
 - `t_start`, `t_end`: Temporal boundaries of each clip

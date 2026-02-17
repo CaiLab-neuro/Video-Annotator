@@ -1,4 +1,6 @@
-PYTHON_BIN="/home/IBaig/.conda/envs/video/bin/python"
+#!/bin/bash
+# NOTE: Activate your conda environment before running this script:
+#   conda activate tarsier
 
 VIDEO="data/videos/6_side.mp4"
 OUT_CSV="data/results_6/6_side_toy1.csv"
@@ -14,7 +16,7 @@ LIMIT_SEC=180 # 3 minute window
 # Toy 1: 1:00 to 5:01 = 60 to 301 seconds
 # Toy 2: 5:41 to 8:41 = 341 to 521 seconds 
 
-"$PYTHON_BIN" -m annotate_video \
+python -m annotate_video \
   --video "$VIDEO" \
   --model "$TARSIER_MODEL" \
   --config "$CONFIG" \
