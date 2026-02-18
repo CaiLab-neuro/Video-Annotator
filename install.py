@@ -679,7 +679,6 @@ class Installer:
 
             if all_critical_ok:
                 print(f"\n{Colors.OKGREEN}{Colors.BOLD}✓ Installation completed successfully!{Colors.ENDC}\n")
-                self._create_setup_helper()
                 return 0
             else:
                 print(f"\n{Colors.WARNING}⚠ Installation completed with warnings. Some imports failed.{Colors.ENDC}\n")
@@ -757,48 +756,6 @@ class Installer:
 
         return True
 
-    def _create_setup_helper(self):
-        """Create a setup helper script for easy environment configuration"""
-        helper_script = self.project_root / "setup_env.sh"
-
-        setup_content = f"""#!/bin/bash
-# Tarsier Video Annotation Tool - Environment Setup Helper
-# Source this file to configure your environment for running the annotation pipeline
-#
-# Usage:
-#   source setup_env.sh
-
-# Activate conda environment
-if command -v conda &> /dev/null; then
-    source "$(conda info --base)/etc/profile.d/conda.sh"
-    conda activate {self.env_name}
-    echo "✓ Activated conda environment: {self.env_name}"
-else
-    echo "! Conda not found, using system Python"
-fi
-
-# Add tarsier to PYTHONPATH so imports work correctly
-export PYTHONPATH="{self.project_root}:$PYTHONPATH"
-echo "✓ Added project directory to PYTHONPATH"
-
-# Add tarsier directory to sys.path via PYTHONPATH
-export PYTHONPATH="{self.project_root / 'tarsier'}:$PYTHONPATH"
-echo "✓ Added tarsier directory to PYTHONPATH"
-
-echo ""
-echo "Environment ready! You can now run:"
-echo "  python -m annotate_video --help"
-echo "  bash scripts/run_preset.sh"
-"""
-
-        with open(helper_script, 'w') as f:
-            f.write(setup_content)
-
-        # Make executable
-        helper_script.chmod(0o755)
-
-        print(f"{Colors.OKGREEN}✓ Created setup helper script: setup_env.sh{Colors.ENDC}")
-
     def _display_usage_instructions(self, verification_results: dict):
         """Display post-installation usage instructions"""
         print(f"{Colors.HEADER}{'='*70}{Colors.ENDC}")
@@ -806,13 +763,11 @@ echo "  bash scripts/run_preset.sh"
         print(f"{Colors.HEADER}{'='*70}{Colors.ENDC}\n")
 
         # Environment activation
-        print(f"{Colors.BOLD}1. Set up your environment:{Colors.ENDC}")
+        print(f"{Colors.BOLD}1. Activate your environment:{Colors.ENDC}")
         if EnvironmentManager.is_conda_available():
-            print(f"   source setup_env.sh")
-            print(f"   # This activates conda environment '{self.env_name}' and sets PYTHONPATH\n")
+            print(f"   conda activate {self.env_name}\n")
         else:
-            print(f"   export PYTHONPATH={self.project_root}:{self.project_root / 'tarsier'}:$PYTHONPATH")
-            print(f"   # (Using system Python: {self.python_bin})\n")
+            print(f"   # Using system Python: {self.python_bin}\n")
 
         # Model information
         print(f"{Colors.BOLD}2. Model information:{Colors.ENDC}")
@@ -823,7 +778,7 @@ echo "  bash scripts/run_preset.sh"
 
         # Example usage
         print(f"{Colors.BOLD}3. Run video annotation:{Colors.ENDC}")
-        print(f"   # After sourcing setup_env.sh:")
+        print(f"   # Using the script (edit parameters first):")
         print(f"   bash scripts/run_preset.sh")
         print()
         print(f"   # Or run directly:")
@@ -841,11 +796,11 @@ echo "  bash scripts/run_preset.sh"
             print(f"     python install.py --force")
         if not verification_results.get('torch', False):
             print(f"   {Colors.WARNING}! PyTorch import failed - check installation:{Colors.ENDC}")
-            print(f"     source setup_env.sh")
+            print(f"     conda activate {self.env_name}")
             print(f"     python -c 'import torch; print(torch.__version__)'")
         if not verification_results.get('transformers', False):
             print(f"   {Colors.WARNING}! Transformers import failed:{Colors.ENDC}")
-            print(f"     source setup_env.sh")
+            print(f"     conda activate {self.env_name}")
             print(f"     pip install transformers==4.47.0")
         print(f"   - Documentation: https://github.com/bytedance/tarsier")
         print(f"   - Issues: Check README.md and CLAUDE.md in this repository\n")
