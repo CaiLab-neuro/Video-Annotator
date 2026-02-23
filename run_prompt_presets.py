@@ -11,9 +11,51 @@ _tarsier_dir = _script_dir / 'tarsier'
 if _tarsier_dir.exists() and str(_tarsier_dir) not in sys.path:
     sys.path.insert(0, str(_tarsier_dir))
 
+# Patch transformers' dynamic module loader so that auto_map entries whose
+# repo_id is a locally-importable Python package (e.g. "models" inside tarsier/)
+# are resolved via importlib instead of fetching from HuggingFace Hub.
+# This is needed because tarsier's config.json uses "models--module.Class" format
+# where "models" refers to the local tarsier/models/ package, not a HF Hub repo.
+import importlib, importlib.util
+import transformers.dynamic_module_utils as _dmu
+import transformers.models.auto.auto_factory as _af
+
+_orig_get_class = _dmu.get_class_from_dynamic_module
+
+def _patched_get_class(class_reference, pretrained_model_name_or_path, **kwargs):
+    if importlib.util.find_spec(pretrained_model_name_or_path) is not None:
+        mod_name, cls_name = class_reference.rsplit(".", 1)
+        mod = importlib.import_module(f"{pretrained_model_name_or_path}.{mod_name}")
+        return getattr(mod, cls_name)
+    return _orig_get_class(class_reference, pretrained_model_name_or_path, **kwargs)
+
+_dmu.get_class_from_dynamic_module = _patched_get_class
+_af.get_class_from_dynamic_module = _patched_get_class
+
 import torch
-from tasks.utils import load_model_and_processor
+import yaml
+from models.modeling_tarsier import LlavaConfig, TarsierForConditionalGeneration
+from dataset.tarsier_datamodule import init_processor
 from tools.conversation import Chat, conv_templates
+
+
+def load_model_and_processor(model_name_or_path, data_config):
+    """Load Tarsier model and processor."""
+    from tools.color import Color
+    print(Color.red(f"Load model and processor from: {model_name_or_path}"), flush=True)
+    if isinstance(data_config, str):
+        data_config = yaml.safe_load(open(data_config, 'r'))
+    processor = init_processor(model_name_or_path, data_config)
+    model_config = LlavaConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+    model = TarsierForConditionalGeneration.from_pretrained(
+        model_name_or_path,
+        config=model_config,
+        device_map='auto',
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    )
+    model.eval()
+    return model, processor
 
 def normalize_to_choices(raw_text, choices, aliases=None):
     """
@@ -45,9 +87,9 @@ def normalize_to_choices(raw_text, choices, aliases=None):
         if c in words_in_output:
             return c
 
-    # Prefix match (either direction)
+    # Prefix match (either direction) — guard against empty s matching everything
     for c in choices:
-        if c.startswith(s) or s.startswith(c):
+        if s and (c.startswith(s) or s.startswith(c)):
             return c
 
     # Special handling for yes/no
@@ -125,7 +167,16 @@ def ask_all_for_clip(
 
 
 def main(args):
-    model, processor = load_model_and_processor(args.model_name_or_path, args.config)
+    # Load config and apply optional CLI overrides before building the processor.
+    # This allows callers to tune n_frames / max_pixels without editing the YAML.
+    with open(args.config, "r") as f:
+        data_config = yaml.safe_load(f)
+    if args.n_frames is not None:
+        data_config["n_frames"] = int(args.n_frames)
+    if args.max_pixels is not None:
+        data_config["max_pixels"] = int(args.max_pixels)
+
+    model, processor = load_model_and_processor(args.model_name_or_path, data_config)
 
     with open(args.prompts, "r") as f:
         bank = json.load(f)
@@ -146,7 +197,7 @@ def main(args):
         "top_p": float(defaults.get("top_p", 1.0)),
     }
 
-    n_frames = 8
+    n_frames = data_config.get("n_frames", 8)
 
     if torch.cuda.is_available():
         device = "cuda:0"
@@ -155,14 +206,13 @@ def main(args):
 
     chat = Chat(model, processor, device, debug=False)
 
-
     raw_map = ask_all_for_clip(
         chat=chat,
         video_path=args.input_path,
         presets=presets,
         system_prompt=system_prompt,
         gen_kwargs=gen_kwargs,
-        template_name="tarsier2-7b",  # adjust if you use a different key in conv_templates
+        template_name="tarsier2-7b",
         n_frames=n_frames,
     )
 
@@ -214,6 +264,16 @@ if __name__ == "__main__":
         "--output",
         default="outputs/preset_results.jsonl",
         help="JSONL file with one line per task for this clip.",
+    )
+    ap.add_argument(
+        "--n_frames", type=int, default=None,
+        help="Frames sampled per clip (overrides config n_frames). "
+             "Note: use_multi_images_for_video=true in config doubles this for the model.",
+    )
+    ap.add_argument(
+        "--max_pixels", type=int, default=None,
+        help="Max pixels per frame (overrides config max_pixels). "
+             "Lower values reduce memory and speed up inference (e.g. 200704 = 448x448).",
     )
     args = ap.parse_args()
     main(args)
