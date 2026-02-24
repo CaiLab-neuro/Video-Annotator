@@ -2,8 +2,8 @@
 # NOTE: Activate your conda environment before running this script:
 #   conda activate tarsier
 
-VIDEO="/data/Cai_gaze/Tsuji_lab_collaboration/results/aligned_video_YB_finalized_version/2_side_11_35584_merged.mp4"
-OUT_CSV="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/2/2_side.csv"
+VIDEO="/data/Cai_gaze/Tsuji_lab_collaboration/results/aligned_video_YB_finalized_version/2_room_3_35578.mp4"
+OUT_CSV="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/2/2_room_fast.csv"
 
 PRESETS="prompts/presets_shorter.json"
 CONFIG="tarsier/configs/tarser2_default_config.yaml" #tarser is correct spelling, typo on developer's end
@@ -21,7 +21,7 @@ LIMIT_SEC=1185.5 # 3 minute window
 #   Config default is 16; tarsier doubles each frame internally (use_multi_images_for_video),
 #   so 8 here → 16 images fed to the vision encoder.
 #   Fewer frames = faster but less temporal context.
-N_FRAMES=8
+N_FRAMES=15
 
 # MAX_PIXELS: max resolution per frame (width * height).
 #   Config default is 460800 (~678x678). Lower values reduce vision encoder memory and time.
@@ -36,7 +36,7 @@ MAX_PIXELS=240000
 RAW_DIR=""
 # RAW_DIR="${OUT_CSV%.csv}_raw"  # uncomment to auto-name next to the output CSV
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 
 python -m annotate_video \
   --video "$VIDEO" \
