@@ -21,6 +21,7 @@ LIMIT_SEC=1185.5 # 3 minute window
 #   Config default is 16; tarsier doubles each frame internally (use_multi_images_for_video),
 #   so 8 here → 16 images fed to the vision encoder.
 #   Fewer frames = faster but less temporal context.
+#   We try 15 to put utilize about half of the frames.
 N_FRAMES=15
 
 # MAX_PIXELS: max resolution per frame (width * height).
