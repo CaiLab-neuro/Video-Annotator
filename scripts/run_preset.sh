@@ -3,7 +3,7 @@
 #   conda activate tarsier
 
 VIDEO="/data/Cai_gaze/Tsuji_lab_collaboration/results/aligned_video_YB_finalized_version/2_room_3_35578.mp4"
-OUT_CSV="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/2/2_room_fast.csv"
+OUT_CSV="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/2/2_room.csv"
 
 PRESETS="prompts/presets_shorter.json"
 CONFIG="tarsier/configs/tarser2_default_config.yaml" #tarser is correct spelling, typo on developer's end
