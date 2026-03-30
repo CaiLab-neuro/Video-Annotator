@@ -6,7 +6,7 @@
     "notes": "Visual behavior analysis focusing on gestures, movement, and object interaction. No audio assumptions."
   },
   "global_instructions": {
-    "system_prompt": "Analyze visual behavior of the people from this video. Use only visible cues and ignore audio. Return EXACTLY one label from {choices}. Output the label ONLY. No punctuation, no extra words, no sentences.",
+    "system_prompt": "Analyze visual behavior of the people from this video. Return EXACTLY one label from the allowed options. Output the label ONLY. No punctuation, no extra words, no sentences.",
     "defaults": {
       "temperature": 0.0,
       "top_p": 1.0,
@@ -74,7 +74,7 @@
     {
       "task": "child_proximity_behavior",
       "title": "Child Spatial Proximity",
-      "question": "What is the child’s proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "question": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
       "choices": [
         "close and facing toward adult",
         "close but facing away from adult",
@@ -85,14 +85,14 @@
         "not visible"
       ],
       "aliases": {
-        "leaning toward parent": "close and oriented toward adult"
+        "leaning toward parent": "close and facing toward adult"
       },
       "return_format": "label_only"
     },
     {
       "task": "current_toy",
       "title": "Current Toy Interaction",
-      "question": "Which toy is the child holding in their hands? Choose one: none, giraffe, elephant, red toy, green toy.",
+      "question": "Which toy is the child holding in their hands? Choose one: none, giraffe, elephant, yellow toy, green toy.",
       "choices": [
         "giraffe",
         "elephant",
@@ -142,13 +142,14 @@
     {
       "task": "child_pose",
       "title": "Child Pose",
-      "question": "What is the child's posture? Choose one: sitting still, standing still, walking, crawling, turning around, not visible.",
+      "question": "What is the child's posture? Choose one: sitting still, standing still, walking, crawling, turning around, bending over, not visible.",
       "choices": [
         "sitting still",
         "standing still",
         "walking",
         "crawling",
         "turning around",
+        "bending over",
         "not visible"
       ],
       "aliases": {
@@ -159,13 +160,14 @@
     {
       "task": "adult_pose",
       "title": "Adult Pose",
-      "question": "What is the adult's posture? Choose one: sitting, standing still, walking, crawling, turning around, not visible.",
+      "question": "What is the adult's posture? Choose one: sitting, standing still, walking, crawling, turning around, bending over, not visible.",
       "choices": [
         "sitting",
         "standing still",
         "walking",
         "crawling",
         "turning around",
+        "bending over",
         "not visible"
       ],
       "aliases": {
@@ -192,7 +194,7 @@
       "answer": "grabbing toy"
     },
     {
-      "instruction": "What is the child’s proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "instruction": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
       "answer": "mid distance and facing toward adult"
     },
     {

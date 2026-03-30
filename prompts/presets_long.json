@@ -6,7 +6,7 @@
     "notes": "Long-duration visual behavior summaries. No audio, no gaze. Output exactly one label per prompt."
   },
   "global_instructions": {
-    "system_prompt": "You are analyzing a continuous video segment. Use only visible cues (posture, hands/arms, object contact, proximity/orientation). Ignore audio and eye gaze. Consider the ENTIRE segment and choose the SINGLE best summary label from {choices}. Output the label ONLY — no punctuation or extra words. If uncertain, choose the closest allowed label such as 'none'.",
+    "system_prompt": "You are analyzing a continuous video segment. Use only visible cues (posture, hands/arms, object contact, proximity/orientation). Ignore audio and eye gaze. Consider the ENTIRE segment and choose the SINGLE best summary label from the allowed options. Output the label ONLY — no punctuation or extra words. If uncertain, choose the closest allowed label such as 'none'.",
     "defaults": {
       "temperature": 0.0,
       "top_p": 1.0,
@@ -17,7 +17,7 @@
     {
       "task": "interaction_flow",
       "title": "Overall Interaction Flow in Segment",
-      "question": "What is the primary visual interaction pattern between the two people? Choose one: adult initiates, child initiates, mutual engagement, disengaged.",
+      "question": "What is the primary visual interaction pattern between the two people? Choose one: adult initiates, child initiates, mutual engagement, disengaged, mixed.",
       "choices": [
         "adult initiates",
         "child initiates",
@@ -30,9 +30,9 @@
         "child leads": "child initiates",
         "together": "mutual engagement",
         "no interaction": "disengaged",
-        "varied": "mutal engagement",
+        "varied": "mutual engagement",
         "unclear": "disengaged",
-        "unknown": "mutal engagement"
+        "unknown": "mutual engagement"
       },
       "return_format": "label_only"
     },
@@ -41,11 +41,11 @@
       "title": "Current Toy",
       "question": "What is the object the child and adult are focused on? Choose one: giraffe, elephant, yellow toy, green toy, none",
       "choices": [
-        "mostly",
-        "occasionally",
-        "rarely",
-        "never",
-        "cannot tell"
+        "giraffe",
+        "elephant",
+        "yellow toy",
+        "green toy",
+        "none"
       ],
       "aliases": {
         "red toy": "yellow toy",
@@ -82,7 +82,8 @@
         "mostly",
         "occasionally",
         "rarely",
-        "never"
+        "never",
+        "cannot tell"
       ],
       "aliases": {
         "often": "mostly",
@@ -111,7 +112,7 @@
         "no object": "none",
         "varied toys": "multiple",
         "unknown": "cannot tell",
-        "yellow flower toy": "red toy"
+        "yellow flower toy": "yellow toy"
       },
       "return_format": "label_only"
     },
@@ -247,7 +248,7 @@
       "aliases": {
         "many switches": "frequent switching",
         "few switches": "some switching",
-        "one toy": "mostly single toy",
+        "one toy": "single toy",
         "no switch": "none",
         "unknown": "cannot tell"
       },
