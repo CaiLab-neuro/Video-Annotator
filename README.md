@@ -1,4 +1,4 @@
-# Annotation Tool for Behavioral Video Data (Video Content Annotator)
+# Annotation Tool for Videos Contents (Video Content Annotator)
 
 `Video Content Annotator`, part of the `GazeBehavior Annotation Toolkit (GBAT)`, provides a general-purpose Vision-Language Model (VLM)-based annotator for labeling video content using a question-answering framework. For human behavioral research, it supports the annotation of human behaviors from egocentric and third-person video recordings.
 
