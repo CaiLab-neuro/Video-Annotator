@@ -4,7 +4,6 @@
 
 ## Main Scripts
 
-- `install.py`: Checks system requirements and installs the Tarsier-based annotation environment.
 - `annotate_video.py`: Main video annotation entry point; clips a video, runs preset prompts, and writes segment-level labels to CSV.
 - `run_prompt_presets.py`: Loads the Tarsier model and applies prompt presets to a single clip.
 - `eaf_to_csv.py`: Converts ELAN `.eaf` human annotations into CSV format for comparison.
