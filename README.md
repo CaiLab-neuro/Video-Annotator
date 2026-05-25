@@ -2,6 +2,17 @@
 
 `Video Content Annotator`, part of the `GazeBehavior Annotation Toolkit (GBAT)`, provides a general-purpose Vision-Language Model (VLM)-based annotator for labeling video content using a question-answering framework. For human behavioral research, it supports the annotation of human behaviors from egocentric and third-person video recordings.
 
+## Main Scripts
+
+- `install.py`: Checks system requirements and installs the Tarsier-based annotation environment.
+- `annotate_video.py`: Main video annotation entry point; clips a video, runs preset prompts, and writes segment-level labels to CSV.
+- `run_prompt_presets.py`: Loads the Tarsier model and applies prompt presets to a single clip.
+- `eaf_to_csv.py`: Converts ELAN `.eaf` human annotations into CSV format for comparison.
+- `visualizer.py`: Compares model and human annotation CSVs and saves metrics and plots.
+- `scripts/run_preset.sh`: Example shell wrapper for annotating one configured video.
+- `scripts/run_all_exo_videos.sh`: Batch wrapper for annotating side/room exocentric videos in a directory.
+- `scripts/visualize.sh`: Example shell wrapper for generating comparison visualizations.
+
 ## Installation
 **Requirements:** Python 3.9, git, ffmpeg, ~10 GB disk space
 
