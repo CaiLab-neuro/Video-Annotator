@@ -144,3 +144,19 @@ STRIDE=1.0
 ```
 
 This would generate ~180 annotated clips covering the 1:00–4:00 range of the video.
+
+## Citation
+
+If you use the tool, please cite:
+
+```bibtex
+@misc{baig2026gazebehaviorannotationtoolkitgbat,
+      title={GazeBehavior Annotation Toolkit (GBAT): AI-powered toolkit for automatic annotation of egocentric eye-tracking and video data of child-caregiver interaction}, 
+      author={Iba Baig and Kevin Li and Yanbin Xu and Seiji Cattelain and Marie Hallo and Hayato Ono and Sho Tsuji and Ming Bo Cai},
+      year={2026},
+      eprint={2605.22962},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2605.22962}, 
+}
+```
