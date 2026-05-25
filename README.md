@@ -1,37 +1,19 @@
-<div align="center">
+# Annotation Tool for Behavioral Video Data (Video Content Annotator)
 
-<h2>Annotator Tool of Behavioral Video Data</h2>
+`Video Content Annotator`, part of the `GazeBehavior Annotation Toolkit (GBAT)`, provides a general-purpose Vision-Language Model (VLM)-based annotator for labeling video content using a question-answering framework. For human behavioral research, it supports the annotation of human behaviors from egocentric and third-person video recordings.
 
-Iba Baig (Northeastern University), Mingbo Cai, Ph.D. (University of Miami).
-
-</div>
-
-# Overview
-
-### Abstract
-
-How do children and parents switch attention and choose actions during their dynamic interactions? To study this requires naturalist video recording of their activity. Current research in developmental psychology relies heavily on frame-to-frame manual coding of video recordings, which is time-intensive and subjective. We investigate whether multimodal AI can automatically classify behavioral states during such interaction given language prompts by building a video analysis pipeline employing Tarsier, a large video-language model developed by ByteDance. Our pipeline extracts sequential overlapping brief (1-3 second) video clips from 20-minute videos of child-parent playing activity in the lab, and submits them to the video-language model with standardized prompts for classifying child’s attention direction, hand actions, toy manipulation styles, and parental gesturing behaviors. This process generates a time series of these behavioral features reflecting the moment-to-moment changes of the action and attention of children and parents. Preliminary analysis of the pipeline’s output in comparison to manual annotation confirms its validity. Further, by allowing the model to analyze an entire 20-minute video, we find that the model can reveal quantifiable visual cues such as child’s pose, child’s longest toy play time, distraction, and parental gestures with a single prompt and can also infer the child’s preference among the toys played during the recording session. This approach demonstrates that AI can be utilized for objective measures of social engagement previously inefficient through manual observation and speeds up the analysis of large-scale video datasets of children’s behavior. The methodology has implications for early developmental screening, personalized intervention design, and advancing our understanding of how visual interaction dynamics influence social development. Future work will integrate audio analysis and eye-tracking data.
-
-### Simple Model Structure
-Tarsier takes a simple sturcture that use a MLP projection layer to connect visual encoder (CLIP ViT) and text decoder (LLM). Frames are encoded independently and concatenated to input into LLM.
-
-# Usage
-This section provides guidance on how to run, evaluate and deploy this model.
-
-## Setup
-
+## Installation
 **Requirements:** Python 3.9, git, ffmpeg, ~10 GB disk space
 
-### Automated Installation
+### Option1: Setup Script (`install.py`)
 
 ```bash
 python install.py
 conda activate tarsier
 ```
-
 Options: `--env-name <name>`, `--force`, `--verify-only`
 
-### Manual Installation
+### Option2: Manual Installation of Dependencies
 
 ```bash
 # Create environment
@@ -44,14 +26,13 @@ cd tarsier && bash setup.sh && cd ..
 # Install project dependencies
 pip install pympi-ling pandas matplotlib scikit-learn
 ```
-
 **Note:** Model (`omni-research/Tarsier2-7b-0115`) auto-downloads on first use to `~/.cache/huggingface/hub/`
 
-### Get Started
+## Annotating Videos with Preset Promputs (run_preset.sh)
 
-#### Annotating Videos with Presets
+**Purpose**: Analyze videos by extracting short clips and automatically annotate each clips with an event label based on prompted questions (e.g. For human behaviors: child and parent hand actions).
 
-This pipeline automatically analyzes behavioral videos by extracting short clips and classifying behavioral features across multiple dimensions (e.g., child hand action, toy engagement, spatial proximity, parental gestures).
+### Usage
 
 **Linux/Mac:**
 
@@ -59,7 +40,7 @@ This pipeline automatically analyzes behavioral videos by extracting short clips
    ```bash
    vim scripts/run_preset.sh
    ```
-
+   
 2. Key variables to set:
    - `VIDEO`: Path to your input video file
    - `OUT_CSV`: Path where the output annotations CSV will be saved
@@ -105,8 +86,6 @@ python -m annotate_video \
   --limit_sec 180
 ```
 
-Replace `YOUR_VIDEO.mp4` and `OUTPUT.csv` with your actual file paths.
-
 **Output:** A CSV file with one row per video segment, containing the following behavioral annotations:
 - `t_start`, `t_end`: Temporal boundaries of each clip
 - `child_hand_action`: Action type (e.g., grabbing toy, manipulating toy, pointing, etc.)
@@ -142,8 +121,12 @@ LIMIT_SEC=180
 CLIP_DURATION=3.0
 STRIDE=1.0
 ```
-
 This would generate ~180 annotated clips covering the 1:00–4:00 range of the video.
+
+## Contact 
+Iba Baig (baig.i@northeastern.edu)
+Dr. Mingbo Cai (mingbocai@gmail.com)
+
 
 ## Citation
 
