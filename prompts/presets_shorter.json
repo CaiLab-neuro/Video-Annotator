@@ -6,7 +6,7 @@
     "notes": "Visual behavior analysis focusing on gestures, movement, and object interaction. No audio assumptions."
   },
   "global_instructions": {
-    "system_prompt": "Analyze visual behavior of the people from this video. Return EXACTLY one label from {choices}. Output the label ONLY. No punctuation, no extra words, no sentences.",
+    "system_prompt": "Analyze visual behavior of the people from this video. Return EXACTLY one label from the allowed options. Output the label ONLY. No punctuation, no extra words, no sentences.",
     "defaults": {
       "temperature": 0.0,
       "top_p": 1.0,
@@ -85,7 +85,7 @@
         "not visible"
       ],
       "aliases": {
-        "leaning toward parent": "close and oriented toward adult"
+        "leaning toward parent": "close and facing toward adult"
       },
       "return_format": "label_only"
     },
@@ -171,11 +171,11 @@
       "answer": "grabbing toy"
     },
     {
-      "instruction": "What is the child’s proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "instruction": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
       "answer": "mid distance and facing toward adult"
     },
     {
-      "instruction": "What is the adult’s primary hand action in this clip? Choose one: pointing, handing toy to child, taking toy from child, holding toy, holding paper, moving toy, touching child, resting, opening a box or bag, waving, none.",
+      "instruction": "What is the adult's primary hand action in this clip? Choose one: pointing, handing toy to child, taking toy from child, holding toy, holding paper, moving toy, touching child, resting, opening a box or bag, waving, none.",
       "answer": "moving toy"
     },
     {

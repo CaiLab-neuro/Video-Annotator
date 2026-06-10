@@ -39,6 +39,32 @@ from models.modeling_tarsier import LlavaConfig, TarsierForConditionalGeneration
 from dataset.tarsier_datamodule import init_processor
 from tools.conversation import Chat, conv_templates
 
+# Patch LlavaConfig.__init__ to normalize auto_map entries in vision_config/text_config.
+# The model's config.json uses "module.Class" for the vision sub-config but the Tarsier
+# code unconditionally splits on "--" expecting "repo_id--module.Class". Add the "models--"
+# prefix when it is absent so the existing split logic succeeds.
+_orig_llava_init = LlavaConfig.__init__
+
+def _patched_llava_init(self, vision_config=None, text_config=None, **kwargs):
+    for cfg in [vision_config, text_config]:
+        if isinstance(cfg, dict) and 'auto_map' in cfg:
+            cfg['auto_map'] = {
+                k: (v if '--' in v else f'models--{v}')
+                for k, v in cfg['auto_map'].items()
+                if isinstance(v, str)
+            }
+    _orig_llava_init(self, vision_config=vision_config, text_config=text_config, **kwargs)
+
+LlavaConfig.__init__ = _patched_llava_init
+
+
+def _is_cached_locally(model_name_or_path):
+    """Return True if the model appears to be in the HuggingFace local cache."""
+    hf_home = Path(os.environ.get("HF_HOME", Path.home() / ".cache" / "huggingface"))
+    cache_dir = hf_home / "hub"
+    slug = "models--" + model_name_or_path.replace("/", "--")
+    return (cache_dir / slug).exists()
+
 
 def load_model_and_processor(model_name_or_path, data_config):
     """Load Tarsier model and processor."""
@@ -46,6 +72,14 @@ def load_model_and_processor(model_name_or_path, data_config):
     print(Color.red(f"Load model and processor from: {model_name_or_path}"), flush=True)
     if isinstance(data_config, str):
         data_config = yaml.safe_load(open(data_config, 'r'))
+
+    # If the model is already cached, skip network calls to avoid gated-repo auth
+    # errors for users whose HF token lacks access but have the weights locally.
+    # New users without a cache will proceed normally and download on first use.
+    if _is_cached_locally(model_name_or_path) and not os.environ.get("HF_HUB_OFFLINE"):
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        print("Model found in local cache; loading offline.", flush=True)
+
     processor = init_processor(model_name_or_path, data_config)
     model_config = LlavaConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
     model = TarsierForConditionalGeneration.from_pretrained(
@@ -82,16 +116,16 @@ def normalize_to_choices(raw_text, choices, aliases=None):
             if s == k_norm or k_norm in s:
                 return v_norm
 
-    # Word-based match
+    # Word-based match — only if unambiguous (exactly one choice matched)
     words_in_output = s.split()
-    for c in choices:
-        if c in words_in_output:
-            return c
+    word_matches = [c for c in choices if c in words_in_output]
+    if len(word_matches) == 1:
+        return word_matches[0]
 
-    # Prefix match (either direction) — guard against empty s matching everything
-    for c in choices:
-        if s and (c.startswith(s) or s.startswith(c)):
-            return c
+    # Prefix match — only if unambiguous
+    prefix_matches = [c for c in choices if s and (c.startswith(s) or s.startswith(c))]
+    if len(prefix_matches) == 1:
+        return prefix_matches[0]
 
     # Special handling for yes/no
     if set(choices) == {"yes", "no"}:
@@ -100,10 +134,10 @@ def normalize_to_choices(raw_text, choices, aliases=None):
         if any(w in s for w in ["no", "nope", "not", "false", "isn"]):
             return "no"
 
-    # Substring match as last resort
-    for c in choices:
-        if c in s:
-            return c
+    # Substring match — only if unambiguous
+    substr_matches = [c for c in choices if c in s]
+    if len(substr_matches) == 1:
+        return substr_matches[0]
 
     return "unknown"
 
@@ -358,8 +392,129 @@ def ask_all_with_kv_cache(
     return raw_map
 
 
+def _clone_kv_cache(cache):
+    """Return a fresh DynamicCache with cloned tensors (so the original is not mutated)."""
+    new_cache = DynamicCache()
+    new_cache.key_cache = [t.clone() for t in cache.key_cache]
+    new_cache.value_cache = [t.clone() for t in cache.value_cache]
+    return new_cache
+
+
+def ask_all_independent(
+    chat,
+    video_path,
+    presets,
+    system_prompt,
+    gen_kwargs,
+    template_name="tarsier2-7b",
+    n_frames=8,
+):
+    """
+    Encode the video ONCE, then ask each question independently.
+
+    Every question sees only [video + that question] — no prior Q&A pairs are
+    included in the context.  The video KV cache is cloned for each question so
+    answers cannot influence each other.
+
+    Returns:
+        raw_map: dict { task_name -> raw_model_text }
+    """
+    model = chat.model
+    device = chat.device
+    tokenizer = chat.processor.processor.tokenizer
+    chat_template = chat.processor.processor.chat_template
+    max_new_tokens = int(gen_kwargs.get("max_new_tokens", 12))
+    eos_ids = {
+        tokenizer.eos_token_id,
+        tokenizer.convert_tokens_to_ids("<|im_end|>"),
+    }
+
+    def _build_full_prompt(p):
+        question = p["question"]
+        choices = p["choices"]
+        full_sys = (system_prompt or "").strip()
+        allowed = f"Allowed options: {', '.join(choices)}."
+        if full_sys:
+            return f"{full_sys}\n\n{allowed}\n\n{question}"
+        return f"{allowed}\n\n{question}"
+
+    # ------------------------------------------------------------------
+    # Step 1 – Prefill video only → save past_kv_video
+    # ------------------------------------------------------------------
+    conv_video = deepcopy(conv_templates[template_name])
+    conv_video.messages.append([conv_video.roles[0], {"type": "video", "text": video_path}])
+    video_inputs, _ = chat.prepare_model_inputs(conv_video, n_frames)
+    L_video = video_inputs["input_ids"].shape[1]  # fixed for this clip; used for total_seq_len tracking
+    forward_video = {k: v for k, v in video_inputs.items() if k != "labels"}
+
+    with torch.no_grad():
+        video_prefill = model.forward(
+            **forward_video,
+            past_key_values=DynamicCache(),
+            use_cache=True,
+            return_dict=True,
+        )
+
+    past_kv_video = video_prefill.past_key_values
+    last_pos_video = video_prefill.position_ids[0, -1, 0].item()
+
+    raw_map = {}
+
+    # ------------------------------------------------------------------
+    # Step 2 – Ask each question from a fresh copy of the video cache.
+    # L_video is fixed for this clip, so question deltas are computed
+    # via apply_chat_template (text-only) — no further video reads needed.
+    # ------------------------------------------------------------------
+    for p in presets:
+        Qi_prompt = _build_full_prompt(p)
+
+        # Compute the new-user-turn tokens using the same diff trick as
+        # ask_all_with_kv_cache step 4a.  "x" is a throw-away placeholder
+        # that cancels out; the delta is purely the new question turn.
+        prior_msgs = [{"role": "user",      "content": "x"},
+                      {"role": "assistant", "content": "x"}]
+        next_msgs  = [{"role": "user",      "content": "x"},
+                      {"role": "assistant", "content": "x"},
+                      {"role": "user",      "content": Qi_prompt}]
+        toks_prior = tokenizer.apply_chat_template(
+            prior_msgs, tokenize=True, add_generation_prompt=False,
+            chat_template=chat_template)
+        toks_next = tokenizer.apply_chat_template(
+            next_msgs, tokenize=True, add_generation_prompt=True,
+            chat_template=chat_template)
+        delta_ids = torch.tensor(
+            [toks_next[len(toks_prior):]], dtype=torch.long, device=device)
+        delta_len = delta_ids.shape[1]
+
+        pos_start = last_pos_video + 1
+        pos_ids = torch.arange(pos_start, pos_start + delta_len, device=device)
+        pos_ids = pos_ids.unsqueeze(0).unsqueeze(-1).expand(1, delta_len, 3).clone()
+
+        # Clone the video cache so each question starts from video-only context
+        with torch.no_grad():
+            qi_prefill = model.forward(
+                input_ids=delta_ids,
+                attention_mask=None,
+                position_ids=pos_ids,
+                past_key_values=_clone_kv_cache(past_kv_video),
+                pixel_values=None,
+                num_images=torch.tensor([0]).to(device),
+                use_cache=True,
+                return_dict=True,
+            )
+
+        An_tokens, _, _, _ = _greedy_decode(
+            model, qi_prefill.logits, qi_prefill.past_key_values,
+            L_video + delta_len, pos_ids[0, -1, 0].item(),
+            max_new_tokens, eos_ids, device,
+        )
+        raw_map[p["task"]] = tokenizer.decode(An_tokens, skip_special_tokens=True)
+
+    return raw_map
+
+
 def run_clip_inference(chat, clip_path, presets, system_prompt, gen_kwargs,
-                       n_frames=8, no_kv_cache=False):
+                       n_frames=8, no_kv_cache=False, independent_questions=False):
     """
     Run all preset questions for a single clip. Primary API for in-process use.
     Model stays loaded between calls (caller is responsible for loading it once).
@@ -368,7 +523,12 @@ def run_clip_inference(chat, clip_path, presets, system_prompt, gen_kwargs,
         label_dict: dict { task -> normalized_label }
         raw_rows:   list of dicts { video_path, task, question, choices, raw, label }
     """
-    _ask_fn = ask_all_for_clip if no_kv_cache else ask_all_with_kv_cache
+    if no_kv_cache:
+        _ask_fn = ask_all_for_clip
+    elif independent_questions:
+        _ask_fn = ask_all_independent
+    else:
+        _ask_fn = ask_all_with_kv_cache
     raw_map = _ask_fn(
         chat=chat, video_path=clip_path, presets=presets,
         system_prompt=system_prompt, gen_kwargs=gen_kwargs,
@@ -430,7 +590,12 @@ def main(args):
 
     chat = Chat(model, processor, device, debug=False)
 
-    _ask_fn = ask_all_for_clip if args.no_kv_cache else ask_all_with_kv_cache
+    if args.no_kv_cache:
+        _ask_fn = ask_all_for_clip
+    elif args.independent_questions:
+        _ask_fn = ask_all_independent
+    else:
+        _ask_fn = ask_all_with_kv_cache
     raw_map = _ask_fn(
         chat=chat,
         video_path=args.input_path,
@@ -502,7 +667,15 @@ if __name__ == "__main__":
     )
     ap.add_argument(
         "--no_kv_cache", action="store_true",
-        help="Disable KV-cache reuse; re-encode video for every question (original behavior).",
+        help="Re-encode the video separately for every question (slowest). "
+             "By default, the video is encoded once and all answers share a "
+             "rolling conversation context.",
+    )
+    ap.add_argument(
+        "--independent_questions", action="store_true",
+        help="Encode the video once, then ask each question independently with "
+             "no prior Q&A in context. Each question sees only [video + question]. "
+             "Avoids cross-question influence while keeping a single video encoding.",
     )
     args = ap.parse_args()
     main(args)

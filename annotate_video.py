@@ -93,10 +93,19 @@ def main():
                     help="Optional directory to save per-clip JSONL files with raw model outputs. "
                          "Useful for debugging label normalization. If omitted, intermediate files are deleted.")
     ap.add_argument("--no_kv_cache", action="store_true",
-                    help="Disable KV-cache reuse in run_prompt_presets; re-encode video for every question.")
+                    help="Re-encode the video separately for every question (slowest). "
+                         "By default, the video is encoded once and all answers share a "
+                         "rolling conversation context.")
+    ap.add_argument("--independent_questions", action="store_true",
+                    help="Encode the video once, then ask each question independently with "
+                         "no prior Q&A in context. Each question sees only [video + question]. "
+                         "Avoids cross-question influence while keeping a single video encoding.")
     args = ap.parse_args()
 
     os.makedirs(os.path.dirname(args.out_csv) or ".", exist_ok=True)
+
+    # Always write a log of labels that couldn't be normalized, next to the CSV.
+    unknowns_path = os.path.splitext(args.out_csv)[0] + "_unknowns.jsonl"
 
     # Optional persistent directory for per-clip JSONL files (raw model output).
     if args.raw_dir:
@@ -154,7 +163,8 @@ def main():
         print(f"[info] Will process {n} segments starting from {args.start_sec}s")
 
         # Open CSV immediately so partial results survive if the run is interrupted.
-        with open(args.out_csv, "w", newline="") as csv_f:
+        with open(args.out_csv, "w", newline="") as csv_f, \
+             open(unknowns_path, "w") as unk_f:
             w = csv.DictWriter(csv_f, fieldnames=fieldnames)
             w.writeheader()
 
@@ -172,12 +182,17 @@ def main():
                         chat=chat, clip_path=clip_path, presets=presets,
                         system_prompt=system_prompt, gen_kwargs=gen_kwargs,
                         n_frames=n_frames, no_kv_cache=args.no_kv_cache,
+                        independent_questions=args.independent_questions,
                     )
                     if args.raw_dir:
                         out_jsonl = os.path.join(args.raw_dir, f"clip_{i:05d}_{t0:.2f}-{t1:.2f}.jsonl")
                         with open(out_jsonl, "w") as jf:
                             for row in raw_rows:
                                 jf.write(json.dumps(row) + "\n")
+                    for row in raw_rows:
+                        if row["label"] == "unknown":
+                            unk_f.write(json.dumps({**row, "t_start": t0, "t_end": t1}) + "\n")
+                    unk_f.flush()
                 except Exception as e:
                     tqdm.write(f"[warn] failed at segment {i} ({t0:.2f}-{t1:.2f}s): {e}")
                     pred = {}
@@ -196,6 +211,7 @@ def main():
                            ", ".join(f"{k}={v}" for k, v in pred.items()))
 
         print(f"[ok] wrote {n} rows → {args.out_csv}")
+        print(f"[ok] unknown-label log → {unknowns_path}")
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
