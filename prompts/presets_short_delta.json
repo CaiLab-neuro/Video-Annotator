@@ -1,0 +1,254 @@
+{
+  "global_instructions": {
+    "system_prompt": "Analyze visual behavior of the people from this video. Return EXACTLY one label from the allowed options. Output the label ONLY. No punctuation, no extra words, no sentences.",
+    "defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_new_tokens": 16
+    }
+  },
+  "few_shot": [
+    {
+      "instruction": "Are the child's hands visible? Choose one from: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Are the adult's hands visible? Choose one from: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is a fluffy toy visible? Choose one from: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is there a toy being held by someone? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is the adult holding a toy? Choose one: yes or no.",
+      "answer": "no"
+    },
+    {
+      "instruction": "Is the child holding a toy? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "What is the child's current hand action? Choose one from: pointing, grabbing toy, giving away the toy, holding toy still, manipulating toy, gesturing, touching adult, on the ground, on furniture, resting on body, opening a box or bag, closing a box or bag, touching glasses, invisible, none.",
+      "answer": "grabbing toy"
+    },
+    {
+      "instruction": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "answer": "mid distance and facing toward adult"
+    },
+    {
+      "instruction": "Which toy is the child holding in their hands? Choose one: none, giraffe, elephant, red toy, green toy.",
+      "answer": "giraffe"
+    },
+    {
+      "instruction": "What is the adult's primary hand action in this clip? Choose one from: pointing, gesturing, grabbing toy, holding toy still, handing toy to child, taking toy from child, holding paper, moving toy, manipulating toy, touching child, reaching out, placing toy on something, opening a box or bag, closing a box or bag, waving, on the ground, on furniture, resting on body, touching glasses, invisible, none.",
+      "answer": "moving toy"
+    },
+    {
+      "instruction": "What is the child's posture? Choose one from: sitting (kneeling), standing still, walking, crawling, turning around, bending over, crouching, lying on the floor, invisible.",
+      "answer": "sitting (kneeling)"
+    },
+    {
+      "instruction": "What is the adult's posture? Choose one from: sitting (kneeling), standing still, walking, crawling, turning around, bending over, crouching, invisible.",
+      "answer": "sitting (kneeling)"
+    }
+  ],
+  "meta": {
+    "name": "child_parent_short_visual_presets_delta",
+    "version": "1.2.0",
+    "created_utc": "2026-03-10T12:00:00.000000Z",
+    "notes": "Based on unaliased/presets_short_delta.json v1.1.0. Choices unified: opening/closing a box or bag, holding toy still (consolidates holding toy), sitting (kneeling) (consolidates all sitting variants). on the ground/furniture/resting split into 3 choices. Touching equipment uses 'touching glasses'. 8 max_new_tokens is sufficient for all choices.",
+    "derived_from": "child_parent_short_visual_presets_delta (unaliased)"
+  },
+  "presets": [
+    {
+      "task": "child_hands_visible",
+      "title": "Child Hands Visible",
+      "question": "Are the child's hands visible? Choose one from: yes or no.",
+      "choices": ["yes", "no"],
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_hands_visible",
+      "title": "Adult Hands Visible",
+      "question": "Are the adult's hands visible? Choose one from: yes or no.",
+      "choices": ["yes", "no"],
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_visible",
+      "title": "Fluffy Toy Visible",
+      "question": "Is a fluffy toy visible? Choose one from: yes or no.",
+      "choices": ["yes", "no"],
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_hand_action",
+      "title": "Adult Hand Action",
+      "question": "What is the adult's primary hand action in this clip? Choose one from: pointing, gesturing, grabbing toy, holding toy still, handing toy to child, taking toy from child, holding paper, moving toy, manipulating toy, touching child, reaching out, placing toy on something, opening a box or bag, closing a box or bag, waving, on the ground, on furniture, resting on body, touching glasses, invisible, none.",
+      "choices": [
+        "pointing",
+        "gesturing",
+        "grabbing toy",
+        "holding toy still",
+        "handing toy to child",
+        "taking toy from child",
+        "holding paper",
+        "moving toy",
+        "manipulating toy",
+        "touching child",
+        "reaching out",
+        "placing toy on something",
+        "opening a box or bag",
+        "closing a box or bag",
+        "waving",
+        "on the ground",
+        "on furniture",
+        "resting on body",
+        "touching glasses",
+        "invisible",
+        "none"
+      ],
+      "aliases": {
+        "holding toy": "holding toy still",
+        "grasping toy": "holding toy still",
+        "showing": "holding toy still",
+        "holding book": "holding paper",
+        "holding object": "holding paper",
+        "illustrating toy": "moving toy",
+        "patting": "touching child",
+        "guiding": "touching child",
+        "directing": "pointing",
+        "giving away the toy": "handing toy to child",
+        "reaching": "reaching out",
+        "closing": "closing a box or bag",
+        "closing a bag or box": "closing a box or bag",
+        "closing bag": "closing a box or bag",
+        "closing a bag or toy box": "closing a box or bag",
+        "closing and placing on the table": "closing a box or bag",
+        "closing the laptop": "closing a box or bag",
+        "opening a bag or box": "opening a box or bag",
+        "placing toy on table": "placing toy on something",
+        "placing toy into basket": "placing toy on something",
+        "operating toy": "manipulating toy",
+        "operating on toy": "manipulating toy",
+        "holding child": "touching child",
+        "on the ground/touching some furniture/resting": "resting on body",
+        "resting": "resting on body",
+        "touching box/toy bag/eye-tracker components": "opening a box or bag",
+        "touching box": "opening a box or bag",
+        "touching bag": "opening a box or bag",
+        "touching toy bag": "opening a box or bag",
+        "touching eye-tracker": "touching glasses",
+        "touching eye tracker": "touching glasses",
+        "touching eye-tracker glasses": "touching glasses",
+        "not visible": "invisible"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_pose",
+      "title": "Adult Pose",
+      "question": "What is the adult's posture? Choose one from: sitting (kneeling), standing still, walking, crawling, turning around, bending over, crouching, invisible.",
+      "choices": [
+        "sitting (kneeling)",
+        "standing still",
+        "walking",
+        "crawling",
+        "turning around",
+        "bending over",
+        "crouching",
+        "invisible"
+      ],
+      "aliases": {
+        "sitting": "sitting (kneeling)",
+        "sitting still": "sitting (kneeling)",
+        "kneeling": "sitting (kneeling)",
+        "bending": "bending over",
+        "bending down": "bending over",
+        "squatting": "crouching",
+        "squatting down": "crouching",
+        "not visible": "invisible"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_hand_action",
+      "title": "Child Hand Action",
+      "question": "What is the child's current hand action? Choose one from: pointing, grabbing toy, giving away the toy, holding toy still, manipulating toy, gesturing, touching adult, on the ground, on furniture, resting on body, opening a box or bag, closing a box or bag, touching glasses, invisible, none.",
+      "choices": [
+        "pointing",
+        "grabbing toy",
+        "giving away the toy",
+        "holding toy still",
+        "manipulating toy",
+        "gesturing",
+        "touching adult",
+        "on the ground",
+        "on furniture",
+        "resting on body",
+        "opening a box or bag",
+        "closing a box or bag",
+        "touching glasses",
+        "invisible",
+        "none"
+      ],
+      "aliases": {
+        "grasping": "holding toy still",
+        "playing": "manipulating toy",
+        "moving toy": "manipulating toy",
+        "waving": "gesturing",
+        "showing": "gesturing",
+        "reaching": "gesturing",
+        "opening": "opening a box or bag",
+        "opening a bag or box": "opening a box or bag",
+        "opening a bag or toy box": "opening a box or bag",
+        "closing": "closing a box or bag",
+        "closing a bag or box": "closing a box or bag",
+        "closing a bag or toy box": "closing a box or bag",
+        "on the ground/touching some furniture/resting": "resting on body",
+        "on some furniture": "on furniture",
+        "resting": "resting on body",
+        "touching box/toy bag/eye-tracker components": "opening a box or bag",
+        "touching box": "opening a box or bag",
+        "touching bag": "opening a box or bag",
+        "touching toy bag": "opening a box or bag",
+        "touching eye-tracker": "touching glasses",
+        "touching eye tracker": "touching glasses",
+        "touching eye-tracker glasses": "touching glasses",
+        "not visible": "invisible"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_pose",
+      "title": "Child Pose",
+      "question": "What is the child's posture? Choose one from: sitting (kneeling), standing still, walking, crawling, turning around, bending over, crouching, lying on the floor, invisible.",
+      "choices": [
+        "sitting (kneeling)",
+        "standing still",
+        "walking",
+        "crawling",
+        "turning around",
+        "bending over",
+        "crouching",
+        "lying on the floor",
+        "invisible"
+      ],
+      "aliases": {
+        "sitting still": "sitting (kneeling)",
+        "sitting": "sitting (kneeling)",
+        "kneeling": "sitting (kneeling)",
+        "lying down": "lying on the floor",
+        "lying on the ground": "lying on the floor",
+        "squatting": "crouching",
+        "not visible": "invisible"
+      },
+      "return_format": "label_only"
+    }
+  ]
+}

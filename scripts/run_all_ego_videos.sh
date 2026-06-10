@@ -1,34 +1,79 @@
 #!/bin/bash
-# Annotate all exocentric videos (side and room views) in VIDEO_DIR.
-# Child and parent (egocentric) videos are excluded — they need separate presets.
+# Annotate all egocentric videos (child or adult/parent perspective) in VIDEO_DIR.
+# Side and room views are excluded — use run_all_exo_videos.sh for those.
+#
+# NOTE: In the video filenames, the naming is swapped relative to the study roles:
+#   view_type "parent" in filename  → child's egocentric camera  (use --perspective child)
+#   view_type "child"  in filename  → adult's egocentric camera  (use --perspective adult|parent)
 #
 # Activate your conda environment before running:
 #   conda activate tarsier
 #
-# Output CSVs are named after the first two fields of the video filename,
-# e.g. 10_side_3_36826_merged.mp4 -> 10_side.csv
+# Output CSVs use the canonical perspective name in the filename:
+#   child  perspective → {subject}_child.csv
+#   adult/parent perspective → {subject}_parent.csv
 #
 # Usage:
-#   bash run_all_exo_videos.sh              # process all subjects
-#   bash run_all_exo_videos.sh 10 27 28     # process only subjects 10, 27, 28
-#   bash run_all_exo_videos.sh --resume     # skip already-complete outputs; prompt on incomplete/wrong-format
-#   bash run_all_exo_videos.sh --resume 10 27 28
+#   bash run_all_ego_videos.sh --perspective child              # process all child-ego videos
+#   bash run_all_ego_videos.sh --perspective adult              # process all adult-ego videos
+#   bash run_all_ego_videos.sh --perspective parent             # same as adult
+#   bash run_all_ego_videos.sh --perspective child 10 27 28    # filter to subjects 10, 27, 28
+#   bash run_all_ego_videos.sh --perspective child --resume     # skip already-complete outputs; prompt on incomplete/wrong-format
 
-# Parse optional arguments.
-RESUME=0
+# ---------------------------------------------------------------------------
+# Parse arguments
+# ---------------------------------------------------------------------------
+PERSPECTIVE=""
 SUBJECT_IDS=()
-for _arg in "$@"; do
-    if [[ "$_arg" == "--resume" ]]; then
-        RESUME=1
-    else
-        SUBJECT_IDS+=("$_arg")
-    fi
+RESUME=0
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --perspective)
+            PERSPECTIVE="$2"
+            shift 2
+            ;;
+        --resume)
+            RESUME=1
+            shift
+            ;;
+        *)
+            SUBJECT_IDS+=("$1")
+            shift
+            ;;
+    esac
 done
 
-VIDEO_DIR="/data/Cai_gaze/Tsuji_lab_collaboration/results/aligned_video_YB_finalized_version"
-OUT_DIR="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/ICDL_3s_token16"
+if [[ "$PERSPECTIVE" != "child" && "$PERSPECTIVE" != "adult" && "$PERSPECTIVE" != "parent" ]]; then
+    echo "Error: --perspective must be 'child', 'adult', or 'parent' (adult and parent are aliases)."
+    echo "Usage: bash run_all_ego_videos.sh --perspective child|adult|parent [subject_id ...]"
+    exit 1
+fi
 
-PRESETS="prompts/presets_short_delta.json"
+# Normalize aliases: "adult" and "parent" are the same perspective.
+if [[ "$PERSPECTIVE" == "adult" ]]; then
+    PERSPECTIVE="parent"
+fi
+
+# Map user-facing perspective to the view_type string used in video filenames.
+# Filename convention is swapped: "parent" = child's camera, "child" = adult's camera.
+if [[ "$PERSPECTIVE" == "child" ]]; then
+    VIEW_TYPE_IN_FILENAME="parent"
+    OUT_KEY_PREFIX="child"    # output key = {subject}_child
+    PRESETS="prompts/presets_ego_child.json"
+else
+    # perspective == "parent" (adult)
+    VIEW_TYPE_IN_FILENAME="child"
+    OUT_KEY_PREFIX="parent"   # output key = {subject}_parent
+    PRESETS="prompts/presets_ego_adult.json"
+fi
+
+# ---------------------------------------------------------------------------
+# Paths and parameters
+# ---------------------------------------------------------------------------
+VIDEO_DIR="/data/Cai_gaze/Tsuji_lab_collaboration/results/aligned_video_YB_finalized_version"
+OUT_DIR="/data/Cai_gaze/Tsuji_lab_collaboration/results/video_annotation/ICDL_3s_ego_${PERSPECTIVE}"  # "parent" for adult/parent, "child" for child
+
 CONFIG="tarsier/configs/tarser2_default_config.yaml"  # "tarser" is a typo from the original developers
 TARSIER_MODEL="omni-research/Tarsier2-7b-0115"
 
@@ -42,14 +87,20 @@ MAX_PIXELS=307200
 # Leave empty to discard (default).
 RAW_DIR=""
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=3
 
 mkdir -p "$OUT_DIR"
+
+echo "Perspective : $PERSPECTIVE (view_type='$VIEW_TYPE_IN_FILENAME' in filenames)"
+echo "Presets     : $PRESETS"
+echo "Output dir  : $OUT_DIR"
+echo ""
 
 # ---------------------------------------------------------------------------
 # Resume helpers
 # ---------------------------------------------------------------------------
 
+# Track whether the user chose "yes to all" for overwrite prompts.
 OVERWRITE_ALL=0
 
 # check_csv_status <csv_path> <presets_json> <expected_limit_sec>
@@ -83,23 +134,24 @@ except Exception:
 PYEOF
 }
 
+# ---------------------------------------------------------------------------
+# Process videos
+# ---------------------------------------------------------------------------
 mapfile -t _videos < <(printf '%s\n' "$VIDEO_DIR"/*.mp4 | sort -V)
 for video in "${_videos[@]}"; do
-    # Extract the view type (second underscore-separated field).
-    # e.g. "10_side_3_36826_merged.mp4" -> view_type="side", key="10_side"
     basename=$(basename "$video" .mp4)
     view_type=$(echo "$basename" | cut -d'_' -f2)
-    key=$(echo "$basename" | cut -d'_' -f1,2)
+    subject_id=$(echo "$basename" | cut -d'_' -f1)
+    key="${subject_id}_${OUT_KEY_PREFIX}"   # always use canonical name (e.g. 10_parent)
 
-    # Only process exocentric views (side and room).
-    if [[ "$view_type" != "side" && "$view_type" != "room" ]]; then # 
-        echo "[skip] $key (not an exo view)"
+    # Only process the requested egocentric view.
+    if [[ "$view_type" != "$VIEW_TYPE_IN_FILENAME" ]]; then
+        echo "[skip] $key (view '$view_type' != '$VIEW_TYPE_IN_FILENAME')"
         continue
     fi
 
     # If subject IDs were specified, skip videos not in the list.
     if [ ${#SUBJECT_IDS[@]} -gt 0 ]; then
-        subject_id=$(echo "$basename" | cut -d'_' -f1)
         match=0
         for id in "${SUBJECT_IDS[@]}"; do
             if [[ "$subject_id" == "$id" ]]; then
@@ -117,6 +169,7 @@ for video in "${_videos[@]}"; do
 
     # --resume: if the output CSV already exists, check whether it is complete.
     if [[ $RESUME -eq 1 && -f "$out_csv" ]]; then
+        # Need LIMIT_SEC to verify completeness, so compute it now.
         _dur=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "$video")
         if [ -z "$_dur" ]; then
             echo "[error] Could not read duration for $video, skipping."
@@ -132,13 +185,14 @@ print(round(math.floor((d - c) / s) * s + c, 6))
             echo "[skip] $key (output already complete)"
             continue
         else
+            # Incomplete or wrong format — ask unless user already said yes-to-all.
             if [[ $OVERWRITE_ALL -eq 0 ]]; then
                 echo "[resume] $key: CSV exists but status='$_status' (last t_end may differ from expected $_lim)."
                 echo "         Overwrite?  y=yes  a=yes to all future  n=skip (default: n)"
                 read -r -p "         Choice [y/a/n]: " _choice
                 case "$_choice" in
-                    y|Y) ;;
-                    a|A) OVERWRITE_ALL=1 ;;
+                    y|Y) ;;           # proceed once
+                    a|A) OVERWRITE_ALL=1 ;;  # proceed and remember
                     *)
                         echo "[skip] $key"
                         continue
@@ -156,10 +210,7 @@ print(round(math.floor((d - c) / s) * s + c, 6))
         continue
     fi
 
-    # Compute LIMIT_SEC as the end of the last complete clip that fits within the video:
-    #   last_start = floor((duration - clip_sec) / stride) * stride
-    #   LIMIT_SEC  = last_start + clip_sec
-    # This guarantees no clip extends beyond the video end.
+    # Compute LIMIT_SEC as the end of the last complete clip that fits within the video.
     LIMIT_SEC=$(python3 -c "
 import math
 d, c, s = float('$duration'), float('$CLIP_DURATION'), float('$STRIDE')
@@ -189,7 +240,7 @@ print(round(math.floor((d - c) / s) * s + c, 6))
 done
 
 if [ ${#SUBJECT_IDS[@]} -gt 0 ]; then
-    echo "Done. Processed subjects: ${SUBJECT_IDS[*]}"
+    echo "Done. Processed $PERSPECTIVE-ego videos for subjects: ${SUBJECT_IDS[*]}"
 else
-    echo "All exo videos processed."
+    echo "All $PERSPECTIVE-ego videos processed."
 fi

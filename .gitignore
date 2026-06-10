@@ -1,7 +1,14 @@
 # .gitignore
 data/annotations
 data/videos
+data/results_*/
+data/comparison_plots/
+data/interrater/
 
 tarsier
 
+__pycache__/
+*.pyc
+
+CLAUDE.md
 visualizer_old.py

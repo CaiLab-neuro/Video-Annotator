@@ -1,0 +1,220 @@
+{
+  "meta": {
+    "name": "child_parent_hand_interaction_ego_child",
+    "version": "1.1.0",
+    "created_utc": "2025-12-17T13:42:19.058870Z",
+    "notes": "Visual behavior analysis focusing on hand and object interaction. No audio assumptions. From child's perspective"
+  },
+  "global_instructions": {
+    "system_prompt": "Analyze this egocentric video from a child's head-mounted camera. Return EXACTLY one label from the allowed options. Output the label ONLY — no punctuation, no extra words, no sentences.",
+    "defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_new_tokens": 16
+    }
+  },
+  "presets": [
+    {
+      "task": "focal_point",
+      "title": "Focal Point",
+      "question": "What is the focal point of this clip? Choose one: hands, table, elephant toy, giraffe toy, yellow toy, green toy, curtains, a person, the ground, paper, box, bag, wall",
+      "choices": [
+        "hands",
+        "table",
+        "elephant toy",
+        "giraffe toy",
+        "yellow toy",
+        "green toy",
+        "curtains",
+        "a person",
+        "the ground",
+        "paper",
+        "box",
+        "bag",
+        "wall"
+      ],
+      "aliases": {
+        "surface": "table",
+        "red toy": "yellow toy",
+        "carpet": "the ground"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "hands_visible",
+      "title": "Hands Visible",
+      "question": "Are the child's hands visible? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "toy_visible",
+      "title": "Toy Visible",
+      "question": "Is a toy visible? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_holding_toy",
+      "title": "Toy Presence",
+      "question": "Is the child holding a toy? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "hand_action",
+      "title": "Current Hand Action",
+      "question": "If the child's hand(s) are visible, what is the hand action? Choose one: pointing, grabbing toy, giving away the toy, holding toy still, manipulating toy, gesturing, touching an adult, on the ground, on some furniture, opening a box or bag, closing a box or bag, taking toy from a black bag, putting toy in a black bag, holding paper, resting on body, reaching out, withdrawing, other activity. If the hands are invisible, answer 'invisible'",
+      "choices": [
+        "pointing",
+        "grabbing toy",
+        "giving away the toy",
+        "holding toy still",
+        "manipulating toy",
+        "gesturing",
+        "touching an adult",
+        "on the ground",
+        "on some furniture",
+        "opening a box or bag",
+        "closing a box or bag",
+        "taking toy from a black bag",
+        "putting toy in a black bag",
+        "holding paper",
+        "resting on body",
+        "reaching out",
+        "withdrawing",
+        "other activity",
+        "invisible"
+      ],
+      "aliases": {
+        "grasping": "holding toy still",
+        "playing with toy": "manipulating toy",
+        "moving toy": "manipulating toy",
+        "waving": "gesturing",
+        "showing": "gesturing",
+        "reaching": "reaching out",
+        "taking toy out from a container": "taking toy from a black bag"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "current_toy",
+      "title": "Current Toy Interaction",
+      "question": "Which toy is currently visible? Choose one: none, giraffe, elephant, yellow/red toy, green toy.",
+      "choices": [
+        "giraffe",
+        "elephant",
+        "yellow/red toy",
+        "green toy",
+        "none"
+      ],
+      "aliases": {
+        "red toy": "yellow/red toy",
+        "not interacting": "none",
+        "grey toy": "none",
+        "unkown": "none",
+        "no toy present": "none",
+        "green toy with a yellow flower-like shape": "green toy"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_hand_action",
+      "title": "Adult Hand Action",
+      "question": "If an adult is visible, what is the adult's primary hand action? Choose one: pointing, gesturing, grabbing toy, holding toy still, handing toy to child, taking toy from child, holding paper, manipulating toy, touching child, reaching out, withdrawing, placing toy on something, opening a box or bag, closing a box or bag, taking toy from a black bag, putting toy in a black bag, waving, on the ground, on some furniture, resting on body, adjusting the glasses of child, other activity. If not visible, answer 'invisible'",
+      "choices": [
+        "pointing",
+        "gesturing",
+        "grabbing toy",
+        "holding toy still",
+        "handing toy to child",
+        "taking toy from child",
+        "holding paper",
+        "manipulating toy",
+        "touching child",
+        "reaching out",
+        "withdrawing",
+        "placing toy on something",
+        "opening a box or bag",
+        "closing a box or bag",
+        "taking toy from a black bag",
+        "putting toy in a black bag",
+        "waving",
+        "on the ground",
+        "on some furniture",
+        "resting on body",
+        "adjusting the glasses of child",
+        "other activity",
+        "invisible"
+      ],
+      "aliases": {
+        "holding toy": "holding toy still",
+        "grasping toy": "holding toy still",
+        "showing": "holding toy still",
+        "holding book": "holding paper",
+        "holding object": "holding paper",
+        "illustrating toy": "moving toy",
+        "patting": "touching child",
+        "guiding": "touching child",
+        "directing": "pointing",
+        "giving away the toy": "handing toy to child",
+        "reaching": "reaching out",
+        "closing": "closing a box or bag",
+        "closing a bag or box": "closing a box or bag",
+        "closing bag": "closing a box or bag",
+        "closing a bag or toy box": "closing a box or bag",
+        "closing and placing on the table": "closing a box or bag",
+        "closing the laptop": "closing a box or bag",
+        "opening a bag or box": "opening a box or bag",
+        "placing toy on table": "placing toy on something",
+        "placing toy into basket": "placing toy on something",
+        "operating toy": "manipulating toy",
+        "operating on toy": "manipulating toy",
+        "holding child": "touching child",
+        "on the ground/touching some furniture/resting": "resting on body",
+        "resting": "resting on body",
+        "touching box/toy bag/eye-tracker components": "opening a box or bag",
+        "touching box": "opening a box or bag",
+        "touching bag": "opening a box or bag",
+        "touching toy bag": "opening a box or bag",
+        "touching eye-tracker": "adjusting the glasses of child",
+        "touching eye tracker": "adjusting the glasses of child",
+        "touching eye-tracker glasses": "adjusting the glasses of child",
+        "not visible": "invisible",
+        "taking toy out from a container": "taking toy from a black bag"
+      },
+      "return_format": "label_only"
+    }
+  ],
+  "few_shot": [
+    {
+      "instruction": "Is the person's hands visible? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is a toy visible? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is there a toy being held? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "What is the current visible hand action? Choose one: pointing, grabbing toy, handing away the toy, holding toy still, manipulating toy, gesturing, touching a person, on the ground, on some furniture, opening a box or bag, waving, holding paper, resting, none.",
+      "answer": "manipulating toy"
+    },
+    {
+      "instruction": "Which toy is currently visible? Choose one: none, giraffe, elephant, red toy, green toy.",
+      "answer": "giraffe"
+    }
+  ]
+}

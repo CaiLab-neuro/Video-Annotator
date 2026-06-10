@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "name": "child_parent_short_visual_presets_updated",
+    "version": "1.2.0",
+    "created_utc": "2026-03-09T00:00:00Z",
+    "notes": "Updated from v1.1.0. Key changes: (1) adult_hand_action renamed 'moving toy' -> 'manipulating toy' to match both Miami and ENS human annotation vocabulary; added aliases for ENS-specific terms 'holding toy still' and 'grabbing toy'. (2) current_toy question text corrected to say 'yellow toy' instead of 'red toy'. (3) few_shot answers updated accordingly."
+  },
+  "global_instructions": {
+    "system_prompt": "Analyze visual behavior of the people from this video. Return EXACTLY one label from the allowed options. Output the label ONLY. No punctuation, no extra words, no sentences.",
+    "defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_new_tokens": 8
+    }
+  },
+  "presets": [
+    {
+      "task": "toy_in_environment",
+      "title": "Toy Engagement Overall",
+      "question": "Is there a toy being held by someone? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "parent_holding_toy",
+      "title": "Parent Holding Toy",
+      "question": "Is the adult holding a toy? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_holding_toy",
+      "title": "Child Holding Toy",
+      "question": "Is the child holding a toy? Choose one: yes or no.",
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_hand_action",
+      "title": "Child Hand Action",
+      "question": "What is the child's current hand action? Choose one: pointing, grabbing toy, giving away the toy, holding toy still, manipulating toy, gesturing, touching adult, on the ground, on some furniture, resting, none.",
+      "choices": [
+        "pointing",
+        "grabbing toy",
+        "giving away the toy",
+        "holding toy still",
+        "manipulating toy",
+        "gesturing",
+        "touching adult",
+        "on the ground",
+        "on some furniture",
+        "resting",
+        "none"
+      ],
+      "aliases": {
+        "grasping": "holding toy still",
+        "playing": "manipulating toy",
+        "moving toy": "manipulating toy",
+        "waving": "gesturing",
+        "showing": "gesturing",
+        "reaching": "gesturing"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_proximity_behavior",
+      "title": "Child Spatial Proximity",
+      "question": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "choices": [
+        "close and facing toward adult",
+        "close but facing away from adult",
+        "mid distance and facing toward adult",
+        "mid distance and facing away from adult",
+        "far and facing toward adult",
+        "far but facing away from adult",
+        "not visible"
+      ],
+      "aliases": {
+        "leaning toward parent": "close and facing toward adult",
+        "mid distance and facing toward": "mid distance and facing toward adult",
+        "mid distance and facing away": "mid distance and facing away from adult",
+        "far and facing toward": "far and facing toward adult",
+        "far but facing away": "far but facing away from adult",
+        "close and facing toward": "close and facing toward adult",
+        "close but facing away": "close but facing away from adult"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "current_toy",
+      "title": "Current Toy Interaction",
+      "question": "Which toy is the child holding in their hands? Choose one: none, giraffe, elephant, yellow toy, green toy.",
+      "choices": [
+        "giraffe",
+        "elephant",
+        "yellow toy",
+        "green toy",
+        "none"
+      ],
+      "aliases": {
+        "red toy": "yellow toy",
+        "not interacting": "none",
+        "grey toy": "none",
+        "unkown": "none",
+        "no toy present": "none",
+        "green toy with a yellow flower-like shape": "green toy"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_hand_action",
+      "title": "Adult Hand Action",
+      "question": "What is the adult's primary hand action in this clip? Choose one: pointing, handing toy to child, taking toy from child, holding toy, holding paper, manipulating toy, touching child, resting, opening a box or bag, waving, none.",
+      "choices": [
+        "pointing",
+        "handing toy to child",
+        "taking toy from child",
+        "holding toy",
+        "holding paper",
+        "manipulating toy",
+        "touching child",
+        "resting",
+        "opening a box or bag",
+        "waving",
+        "none"
+      ],
+      "aliases": {
+        "showing": "holding toy",
+        "holding book": "holding paper",
+        "holding object": "holding paper",
+        "illustrating toy": "manipulating toy",
+        "moving toy": "manipulating toy",
+        "patting": "touching child",
+        "guiding": "touching child",
+        "directing": "pointing",
+        "gesturing": "pointing",
+        "holding toy still": "holding toy",
+        "grabbing toy": "taking toy from child"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "child_pose",
+      "title": "Child Pose",
+      "question": "What is the child's posture? Choose one: sitting still, standing still, walking, crawling, turning around, bending over, not visible.",
+      "choices": [
+        "sitting still",
+        "standing still",
+        "walking",
+        "crawling",
+        "turning around",
+        "bending over",
+        "not visible"
+      ],
+      "aliases": {
+        "kneeling": "sitting still"
+      },
+      "return_format": "label_only"
+    },
+    {
+      "task": "adult_pose",
+      "title": "Adult Pose",
+      "question": "What is the adult's posture? Choose one: sitting, standing still, walking, crawling, turning around, bending over, not visible.",
+      "choices": [
+        "sitting",
+        "standing still",
+        "walking",
+        "crawling",
+        "turning around",
+        "bending over",
+        "not visible"
+      ],
+      "aliases": {
+        "kneeling": "sitting"
+      },
+      "return_format": "label_only"
+    }
+  ],
+  "few_shot": [
+    {
+      "instruction": "Is there a toy being held by someone? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "Is the adult holding a toy? Choose one: yes or no.",
+      "answer": "no"
+    },
+    {
+      "instruction": "Is the child holding a toy? Choose one: yes or no.",
+      "answer": "yes"
+    },
+    {
+      "instruction": "What is the child's current hand action? Choose one: pointing, grabbing toy, giving away the toy, holding toy still, manipulating toy, gesturing, touching adult, on the ground, on some furniture, resting, none.",
+      "answer": "grabbing toy"
+    },
+    {
+      "instruction": "What is the child's proximity and orientation relative to the adult? Shoulder to shoulder is considered a close distance. Choose one: close and facing toward adult, close but facing away from adult, mid distance and facing toward adult, mid distance and facing away from adult, far and facing toward adult, far but facing away from adult, not visible.",
+      "answer": "mid distance and facing toward adult"
+    },
+    {
+      "instruction": "Which toy is the child holding in their hands? Choose one: none, giraffe, elephant, yellow toy, green toy.",
+      "answer": "giraffe"
+    },
+    {
+      "instruction": "What is the adult's primary hand action in this clip? Choose one: pointing, handing toy to child, taking toy from child, holding toy, holding paper, manipulating toy, touching child, resting, opening a box or bag, waving, none.",
+      "answer": "manipulating toy"
+    },
+    {
+      "instruction": "What is the child's posture? Choose one: sitting still, standing still, walking, crawling, turning around, not visible.",
+      "answer": "sitting still"
+    },
+    {
+      "instruction": "What is the adult's posture? Choose one: sitting, standing still, walking, crawling, turning around, not visible.",
+      "answer": "sitting"
+    }
+  ]
+}
